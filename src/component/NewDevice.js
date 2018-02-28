@@ -1,10 +1,10 @@
 import React from 'react';
-import { Form, Button, Input, Modal } from 'antd';
+import { Form, Input, Modal, AutoComplete } from 'antd';
 
 export default class NewDevice extends React.Component {
         
     render() {
-        const { visible, onCancel, onRegister, form} = this.props;
+        const { visible, onCancel, onRegister, form, types} = this.props;
         const { getFieldDecorator } = form;
         
         return (
@@ -27,7 +27,7 @@ export default class NewDevice extends React.Component {
                 {getFieldDecorator('type', {
                 rules: [{ required: true, message: 'Please input the device\'s type!' }],
                 })(
-                    <Input />
+                    <AutoComplete dataSource={types}/>
                 )}
                 </Form.Item>
               </Form>

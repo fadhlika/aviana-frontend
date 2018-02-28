@@ -4,10 +4,10 @@ import { Menu } from 'antd';
 export default class SidebarMenu extends Component {
    
     render() {
-        const {handleMenuClick, activeItem, types, handleModal} = this.props
+        const {handleMenuClick, types} = this.props
 
         return(
-            <Menu 
+            <Menu
             style={{width: '200', height: '100%'}}
             mode='inline'
             onClick={handleMenuClick}>

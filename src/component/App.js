@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import DataTable from './DataTable'
-import Topbar from './Topbar'
-import SidebarMenu from './SidebarMenu'
-import { Layout, Button, Modal, Form,Input } from 'antd';
-import { Line } from 'react-chartjs-2';
+import DataTable from './DataTable';
+import SidebarMenu from './SidebarMenu';
+import { Layout, Button, Form } from 'antd';
 import NewDevice from './NewDevice';
 
 class App extends Component {
@@ -15,12 +13,8 @@ class App extends Component {
         devices: [],
         data: [],
         types: [],
-        options: [],
-        newdevicename: '',
-        newdevicetype: '',
         newdevice: {},
         open : false,
-        register: false,
         activeItem: 'weather-station'
     }
   }
@@ -29,7 +23,7 @@ class App extends Component {
     const {children} = item.props;
     const {devices} = this.state;
     console.log(children);
-    if(children == 'Devices') {
+    if(children === 'Devices') {
       if(devices.length < 1) {
         this.setState({data: [], keys: []})
       } else {
@@ -126,14 +120,14 @@ class App extends Component {
         var lookup = {}
         var result = []
         var list = []
-        for(var i=0; i < responsejson.length; i++) {
-            var _type = responsejson[i]["type"]
+        for(let i=0; i < responsejson.length; i++) {
+            var _type = responsejson[i]["type"];
             if(!(_type in lookup)){
                 lookup[_type] = 1
                 result.push(_type)
             }
         }
-        for(var i in result) {
+        for(let i in result) {
           list.push({key: result[i], text: result[i], value: result[i]})
         }
         this.setState({types: result, options: list, devices: responsejson})
@@ -165,25 +159,34 @@ class App extends Component {
 
   render() {
     const {
-      activeItem, keys, data, open, 
-      register, types, options, 
-      currentValue, newdevicename, 
-      newdevicetype, newdevice
+      keys, data, 
+      open, types, 
+      activeItem
     } = this.state;
+
     const NewDeviceForm = Form.create()(NewDevice);
     return (
-      <div>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Layout.Sider>
+          <div style={{height: '32px', background: 'rgba(255,255,255,.2)', margin: '16px'}} />
+          <SidebarMenu types={types} handleMenuClick={this.handleMenuClick}/>
+        </Layout.Sider>
         <Layout>
-          <Layout.Sider>
-            <SidebarMenu types={types} handleMenuClick={this.handleMenuClick}/>
-          </Layout.Sider>
+          <Layout.Header style={{ background: '#fff', padding: 0 }} />
           <Layout.Content style={{ background: '#fff', padding: 24, margin: 0 }}>
-            {activeItem === 'Devices'? <Button type='default' onClick={this.handleModal}>New Device</Button> : null}
-            <NewDeviceForm ref={this.saveFormRef} visible={open} onRegister={this.handleRegister} onCancel={this.handleClose}/>
+            {activeItem === 'Devices'? 
+            <Button type='default' onClick={this.handleModal}>New Device</Button> : null}
+            <NewDeviceForm 
+              ref={this.saveFormRef} 
+              visible={open} 
+              onRegister={this.handleRegister} 
+              onCancel={this.handleClose} 
+              types={types}/>
             <DataTable keys={keys} data={data} title={activeItem}/>
           </Layout.Content>
           </Layout>
-      </div>
+          
+      </Layout>
     );
   }
 }
