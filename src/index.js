@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'semantic-ui-css/semantic.min.css';
+import 'antd/dist/antd.css';
 import App from './component/App';
 import registerServiceWorker from './registerServiceWorker';
 

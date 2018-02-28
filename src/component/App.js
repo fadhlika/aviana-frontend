@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import DataTable from './DataTable'
 import Topbar from './Topbar'
 import SidebarMenu from './SidebarMenu'
-import { Modal, Container, Grid, Form, Dropdown, Button } from 'semantic-ui-react';
+import { Layout, Button, Modal, Form,Input } from 'antd';
 import { Line } from 'react-chartjs-2';
+import NewDevice from './NewDevice';
 
 class App extends Component {
   constructor(props) {
@@ -24,16 +25,27 @@ class App extends Component {
     }
   }
 
-  handleMenuClick = (e, {name})  => {
-    if(name == 'Device List') {
-      if(this.state.devices.length < 1) {
+  handleMenuClick = ({item})  => {
+    const {children} = item.props;
+    const {devices} = this.state;
+    console.log(children);
+    if(children == 'Devices') {
+      if(devices.length < 1) {
         this.setState({data: [], keys: []})
-         return;
+      } else {
+        let keys = Object.keys(devices[0]);
+        let columns = [];
+        for(let i in keys) {
+          columns.push({title: keys[i], dataIndex: keys[i], key: i})
+        }
+        for(let i in devices) {
+          devices[i]["key"] = i;
+        }
+        this.setState({activeItem : children, keys: columns, data: devices})  
        }
-      this.setState({activeItem : name, keys: Object.keys(this.state.devices[0]),data: this.state.devices})  
-      return
+    } else {
+      this.setState({activeItem : children}, this.getData(children))
     }
-    this.setState({activeItem : name}, this.getData(name))
   }
 
   handleModal = (e) => {
@@ -44,18 +56,20 @@ class App extends Component {
     this.setState({open: false, register: false})
   }
 
-  handleRegister = (e) => {
-    const { newdevicename, newdevicetype } = this.state;
-    fetch('http://aviana.fadhlika.com/device', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({name: newdevicename, type: newdevicetype})
-    }).then(res => res.json())
-    .then(response => {
-      this.setState({register: true, newdevice: response}, this.getDevice())
-    })    
+  handleRegister = () => {
+    const form = this.form;
+    form.validateFields((err, values) => {
+      fetch('http://aviana.fadhlika.com/device', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({name: values["name"], type: values["type"]})
+      }).then(res => res.json())
+      .then(response => {
+        this.setState({open: false}, this.getDevice())
+      }) 
+    })
   }
 
   handleAddition = (e, { value }) => {
@@ -87,7 +101,16 @@ class App extends Component {
             keys.splice(index, 1)
         }
         keys.unshift("date")
-        this.setState({data: responsejson, keys: keys})
+        let columns = [];
+        for(let i in keys) {
+          columns.push({title: keys[i], dataIndex: keys[i], key: keys[i]})
+        }
+
+        for(let i in responsejson) {
+          responsejson[i]["key"] = i;
+        }
+
+        this.setState({data: responsejson, keys: columns})
     });
   }
 
@@ -130,9 +153,14 @@ class App extends Component {
     this.ws.onmessage = e => { 
       let newdata = [JSON.parse(e.data)];
       if(newdata[0]["type"] === this.state.activeItem)
+        newdata[0]["key"] = this.state.data.length;
         this.setState({ data: this.state.data.concat(newdata) })
     }
     this.ws.onerror = e => { console.log('websocket error ' + e)}
+  }
+
+  saveFormRef = (form) => {
+    this.form = form;
   }
 
   render() {
@@ -142,58 +170,19 @@ class App extends Component {
       currentValue, newdevicename, 
       newdevicetype, newdevice
     } = this.state;
-    
+    const NewDeviceForm = Form.create()(NewDevice);
     return (
       <div>
-      <Grid>
-        <Grid.Column width={3}>  
-          <SidebarMenu 
-            activeItem={activeItem} 
-            handleMenuClick={this.handleMenuClick} 
-            handleModal={this.handleModal}
-            types={types}/>
-        </Grid.Column>
-        <Grid.Column>  
-          <DataTable keys={keys} data={data}/>
-        </Grid.Column>  
-      </Grid>
-      <Modal 
-        style={{ margin: 'auto', marginTop: 'auto' }}
-        size={'mini'} 
-        open={open} 
-        dimmer={false}
-        onClose={this.handleClose}>
-        <Modal.Header>New Device</Modal.Header>
-        <Modal.Content>
-          {register ? 
-            'New device ' + newdevice["name"] +' successfully added, save this id to upload data from the device: ' 
-            + newdevice["_id"]
-           : 
-          <Form>
-            <Form.Field>
-              <label>Name</label>
-              <input placeholder='Device Name' onChange={this.handleDeviceName}/>
-            </Form.Field>
-            <Form.Field>
-              <label>Type</label>
-              <Dropdown
-                options={options}
-                placeholder='Choose Type'
-                search
-                selection
-                fluid
-                allowAdditions
-                value={newdevicetype}
-                onAddItem={this.handleAddition}
-                onChange={this.handleChange}
-              />
-            </Form.Field>
-            <Button onClick={this.handleRegister} >Submit</Button>
-            <Button onClick={this.handleClose} >Cancel</Button>
-          </Form>
-        }
-        </Modal.Content>
-      </Modal>
+        <Layout>
+          <Layout.Sider>
+            <SidebarMenu types={types} handleMenuClick={this.handleMenuClick}/>
+          </Layout.Sider>
+          <Layout.Content style={{ background: '#fff', padding: 24, margin: 0 }}>
+            {activeItem === 'Devices'? <Button type='default' onClick={this.handleModal}>New Device</Button> : null}
+            <NewDeviceForm ref={this.saveFormRef} visible={open} onRegister={this.handleRegister} onCancel={this.handleClose}/>
+            <DataTable keys={keys} data={data} title={activeItem}/>
+          </Layout.Content>
+          </Layout>
       </div>
     );
   }
