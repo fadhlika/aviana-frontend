@@ -3,6 +3,7 @@ import DataTable from './DataTable';
 import SidebarMenu from './SidebarMenu';
 import { Layout, Button, Form } from 'antd';
 import NewDevice from './NewDevice';
+import Sockette from 'sockette';
 
 class App extends Component {
   constructor(props) {
@@ -22,7 +23,6 @@ class App extends Component {
   handleMenuClick = ({item})  => {
     const {children} = item.props;
     const {devices} = this.state;
-    console.log(children);
     if(children === 'Devices') {
       if(devices.length < 1) {
         this.setState({data: [], keys: []})
@@ -141,16 +141,19 @@ class App extends Component {
   componentDidMount() {
     this.getDevice();
     this.getData('weather-station'); 
-    this.ws = new WebSocket('ws://aviana.fadhlika.com/websocket')
-    this.ws.onopen = e => { console.log('websocket open' + e) }
-    this.ws.onclose = e => { console.log('websocket close' + e) }
-    this.ws.onmessage = e => { 
+    this.ws = new Sockette('ws://aviana.fadhlika.com/websocket', {
+      timeout: 5e3,
+      maxAttempts: 10,
+      onopen: e => { console.log('websocket open' + e) },
+      onclose: e => { console.log('websocket close' + e) },
+      onmessage: e => { 
       let newdata = [JSON.parse(e.data)];
       if(newdata[0]["type"] === this.state.activeItem)
         newdata[0]["key"] = this.state.data.length;
         this.setState({ data: this.state.data.concat(newdata) })
-    }
-    this.ws.onerror = e => { console.log('websocket error ' + e)}
+      },
+      onerror: e => { console.log('websocket error ' + e)}
+    })
   }
 
   saveFormRef = (form) => {
