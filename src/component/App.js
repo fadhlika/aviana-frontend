@@ -1,9 +1,38 @@
 import React, { Component } from 'react';
-import DataTable from './DataTable';
-import SidebarMenu from './SidebarMenu';
-import { Layout, Button, Form } from 'antd';
-import NewDevice from './NewDevice';
 import Sockette from 'sockette';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
+import Typography from 'material-ui/Typography';
+import { withStyles } from 'material-ui/styles';
+import IconButton from 'material-ui/IconButton';
+import ArrowBack from 'material-ui-icons/ArrowBack';
+import PropTypes from 'prop-types';
+import DataTable from './DataTable';
+import DeviceGrid from './DeviceGrid';
+import ChartGrid from './ChartGrid';
+
+const styles = theme => ({
+  root: {
+    flexGrow: 1,
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+    display: 'flex',
+  },
+  appBar: {
+    position: 'absolute',
+  },
+  content: {
+    height: '100%',
+    width: '100%',
+    marginTop: 64,
+    backgroundColor: theme.palette.background.default,
+  },
+  menuButton: {
+    marginLeft: -12,
+    marginRight: 20,
+  },
+});
 
 class App extends Component {
   constructor(props) {
@@ -13,10 +42,8 @@ class App extends Component {
         keys: [],
         devices: [],
         data: [],
-        types: [],
         newdevice: {},
-        open : false,
-        activeItem: 'weather-station'
+        viewData: false,
     }
   }
 
@@ -53,7 +80,7 @@ class App extends Component {
   handleRegister = () => {
     const form = this.form;
     form.validateFields((err, values) => {
-      fetch('http://aviana.fadhlika.com/device', {
+      fetch('https://aviana.fadhlika.com/api/device', {
         method: 'POST',
         headers: {
           'content-type': 'application/json'
@@ -80,8 +107,18 @@ class App extends Component {
     this.setState({newdevicename: e.target.value})
   }
 
+  handleViewData = (e) => {
+    const id = e.currentTarget.getAttribute('device-id');
+
+    this.setState({viewData: true}, this.getData(id));
+  }
+
+  handleBack = (e) => {
+    this.setState({viewData: false});
+  }
+
   getData = (name) => {
-    fetch('http://aviana.fadhlika.com/data/' + name)
+    fetch('https://aviana.fadhlika.com/api/data/' + name)
     .then(response => response.json())
     .then(responsejson => {
        if(responsejson == null) {
@@ -95,22 +132,15 @@ class App extends Component {
             keys.splice(index, 1)
         }
         keys.unshift("date")
-        let columns = [];
-        for(let i in keys) {
-          columns.push({title: keys[i], dataIndex: keys[i], key: keys[i]})
-        }
-
-        for(let i in responsejson) {
-          responsejson[i]["key"] = i;
-        }
-
-        this.setState({data: responsejson, keys: columns})
+        this.setState({data: responsejson, keys: keys})
     });
   }
 
   getDevice = () => {
-    fetch('http://aviana.fadhlika.com/device')
-    .then(response => response.json())
+    fetch('https://aviana.fadhlika.com/api/device')
+    .then(response => {
+      return response.json();
+    })
     .then(responsejson => {
       if(responsejson == null) {
         this.setState({data: [], keys: []})
@@ -141,7 +171,7 @@ class App extends Component {
   componentDidMount() {
     this.getDevice();
     this.getData('weather-station'); 
-    this.ws = new Sockette('ws://aviana.fadhlika.com/websocket', {
+    this.ws = new Sockette('ws://localhost:8000/websocket', {
       timeout: 5e3,
       maxAttempts: 10,
       onopen: e => { console.log('websocket open' + e) },
@@ -161,37 +191,46 @@ class App extends Component {
   }
 
   render() {
+    const {classes} = this.props;
     const {
-      keys, data, 
-      open, types, 
-      activeItem
+      keys, data,
+      devices, viewData
     } = this.state;
-
-    const NewDeviceForm = Form.create()(NewDevice);
     return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Layout.Sider>
-          <div style={{height: '32px', background: 'rgba(255,255,255,.2)', margin: '16px'}} />
-          <SidebarMenu types={types} handleMenuClick={this.handleMenuClick}/>
-        </Layout.Sider>
-        <Layout>
-          <Layout.Header style={{ background: '#fff', padding: 0 }} />
-          <Layout.Content style={{ background: '#fff', padding: 24, margin: 0 }}>
-            {activeItem === 'Devices'? 
-            <Button type='default' onClick={this.handleModal}>New Device</Button> : null}
-            <NewDeviceForm 
-              ref={this.saveFormRef} 
-              visible={open} 
-              onRegister={this.handleRegister} 
-              onCancel={this.handleClose} 
-              types={types}/>
-            <DataTable keys={keys} data={data} title={activeItem}/>
-          </Layout.Content>
-          </Layout>
-          
-      </Layout>
+    <div className={classes.root}>
+      <AppBar className={classes.AppBar}>
+        <Toolbar>
+          {
+            viewData?  
+            <IconButton className={classes.menuButton} color="inherit" aria-label="Menu"
+              onClick={this.handleBack}>
+              <ArrowBack />
+            </IconButton>
+            : null
+          }
+          <Typography variant="title" color="inherit">
+            Aviana
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      {viewData ? 
+        <main className={classes.content}>
+          <ChartGrid keys={keys} data={data} />
+          <DataTable keys={keys} data={data} />
+        </main>
+        :
+        <main className={classes.content}>
+          <DeviceGrid tes devices={devices} handleViewData={this.handleViewData}/>
+        </main>
+        }
+    </div>
     );
   }
 }
 
-export default App;
+App.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(App);
+
