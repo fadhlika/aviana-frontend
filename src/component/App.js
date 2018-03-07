@@ -171,7 +171,7 @@ class App extends Component {
   componentDidMount() {
     this.getDevice();
     this.getData('weather-station'); 
-    this.ws = new Sockette('ws://localhost:8000/websocket', {
+    this.ws = new Sockette('wss://localhost:8000/websocket', {
       timeout: 5e3,
       maxAttempts: 10,
       onopen: e => { console.log('websocket open' + e) },
