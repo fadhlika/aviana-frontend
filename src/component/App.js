@@ -80,7 +80,7 @@ class App extends Component {
   handleRegister = () => {
     const form = this.form;
     form.validateFields((err, values) => {
-      fetch('https://aviana.fadhlika.com/api/device', {
+      fetch('https://api.aviana.fadhlika.com/device', {
         method: 'POST',
         headers: {
           'content-type': 'application/json'
@@ -118,7 +118,7 @@ class App extends Component {
   }
 
   getData = (name) => {
-    fetch('https://aviana.fadhlika.com/api/data/' + name)
+    fetch('https://api.aviana.fadhlika.com/data/' + name)
     .then(response => response.json())
     .then(responsejson => {
        if(responsejson == null) {
@@ -137,7 +137,7 @@ class App extends Component {
   }
 
   getDevice = () => {
-    fetch('https://aviana.fadhlika.com/api/device')
+    fetch('https://api.aviana.fadhlika.com/device')
     .then(response => {
       return response.json();
     })
