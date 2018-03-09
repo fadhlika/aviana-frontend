@@ -16,6 +16,7 @@ function ChartGrid(props) {
   var arraydata = keys.map(item => {
     if(item === "date") return null;
     return ({
+        //labels:  data.map((d) => {return d["date"];}),
         datasets: [
             {
                 label: item,
@@ -30,7 +31,10 @@ function ChartGrid(props) {
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
-                data: data.map((d, i) => {return {x: d["date"], y: d[item]} })
+                data: data.map((d, i) => {
+                    console.log(d, i);
+                    return {x: new Date(d["date"]), y: d[item]}; 
+                })
             }
         ]
     });
@@ -40,8 +44,7 @@ function ChartGrid(props) {
   return (
       <Grid container className={classes.root}>
             {arraydata.map((item, i) => {
-                console.log(item);
-                return <Grid item xs><ChartCard key={i} data={item}/></Grid>
+                return <Grid item xs={4} key={i}><ChartCard key={item} data={item}/></Grid>
             })}
       </Grid>
   );

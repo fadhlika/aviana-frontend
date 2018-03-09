@@ -47,36 +47,6 @@ class App extends Component {
     }
   }
 
-  handleMenuClick = ({item})  => {
-    const {children} = item.props;
-    const {devices} = this.state;
-    if(children === 'Devices') {
-      if(devices.length < 1) {
-        this.setState({data: [], keys: []})
-      } else {
-        let keys = Object.keys(devices[0]);
-        let columns = [];
-        for(let i in keys) {
-          columns.push({title: keys[i], dataIndex: keys[i], key: i})
-        }
-        for(let i in devices) {
-          devices[i]["key"] = i;
-        }
-        this.setState({activeItem : children, keys: columns, data: devices})  
-       }
-    } else {
-      this.setState({activeItem : children}, this.getData(children))
-    }
-  }
-
-  handleModal = (e) => {
-    this.setState({open: true})
-  }
-
-  handleClose = (e) => {
-    this.setState({open: false, register: false})
-  }
-
   handleRegister = () => {
     const form = this.form;
     form.validateFields((err, values) => {
@@ -93,20 +63,6 @@ class App extends Component {
     })
   }
 
-  handleAddition = (e, { value }) => {
-    this.setState({
-      options: [{ text: value, value }, ...this.state.options],
-    })
-  }
-
-  handleChange = (e, { value }) => {
-    this.setState({ newdevicetype: value })
-  }
-
-  handleDeviceName = (e) => {
-    this.setState({newdevicename: e.target.value})
-  }
-
   handleViewData = (e) => {
     const id = e.currentTarget.getAttribute('device-id');
 
@@ -118,8 +74,11 @@ class App extends Component {
   }
 
   getData = (name) => {
-    fetch('https://api.aviana.fadhlika.com/data/' + name)
-    .then(response => response.json())
+    fetch('https://api.aviana.fadhlika.com/data/' + name + '/100')
+    .then(response => {
+      //console.log(response);
+      return response.json()
+    })
     .then(responsejson => {
        if(responsejson == null) {
         this.setState({data: [], keys: []})
@@ -131,8 +90,14 @@ class App extends Component {
             let index = keys.indexOf(fields[field])
             keys.splice(index, 1)
         }
-        keys.unshift("date")
-        this.setState({data: responsejson, keys: keys})
+        keys.unshift("date");
+        for(var r in responsejson) {
+          delete responsejson[r]._id;
+          delete responsejson[r].device_id;
+          delete responsejson[r].device_name;
+          delete responsejson[r].type;
+        }
+        this.setState({data: responsejson, keys: keys});
     });
   }
 
@@ -146,21 +111,7 @@ class App extends Component {
         this.setState({data: [], keys: []})
          return;
        }
-
-        var lookup = {}
-        var result = []
-        var list = []
-        for(let i=0; i < responsejson.length; i++) {
-            var _type = responsejson[i]["type"];
-            if(!(_type in lookup)){
-                lookup[_type] = 1
-                result.push(_type)
-            }
-        }
-        for(let i in result) {
-          list.push({key: result[i], text: result[i], value: result[i]})
-        }
-        this.setState({types: result, options: list, devices: responsejson})
+        this.setState({devices: responsejson})
     });
   }
 
@@ -170,7 +121,6 @@ class App extends Component {
 
   componentDidMount() {
     this.getDevice();
-    this.getData('weather-station'); 
     this.ws = new Sockette('wss://api.aviana.fadhlika.com/websocket', {
       timeout: 5e3,
       maxAttempts: 10,
@@ -216,7 +166,6 @@ class App extends Component {
       {viewData ? 
         <main className={classes.content}>
           <ChartGrid keys={keys} data={data} />
-          <DataTable keys={keys} data={data} />
         </main>
         :
         <main className={classes.content}>
