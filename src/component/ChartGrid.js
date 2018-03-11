@@ -33,7 +33,7 @@ function ChartGrid(props) {
                 pointRadius: 0,
                 pointHitRadius: 10,
                 data: data.map((d, i) => {
-                    console.log(d, i);
+                    //console.log(d, i);
                     return {x: new Date(d["date"]), y: d[item]}; 
                 })
             }

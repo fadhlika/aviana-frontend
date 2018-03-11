@@ -128,10 +128,7 @@ class App extends Component {
       onclose: e => { console.log('websocket close' + e) },
       onmessage: e => { 
       let newdata = [JSON.parse(e.data)];
-      if(newdata[0]["type"] === this.state.activeItem)
-        newdata[0]["key"] = this.state.data.length;
-        this.setState({ data: this.state.data.concat(newdata) })
-      },
+      this.setState({ data: this.state.data.concat(newdata) })},
       onerror: e => { console.log('websocket error ' + e)}
     })
   }

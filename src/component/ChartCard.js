@@ -48,9 +48,10 @@ class ChartCard extends React.Component {
                       xAxes: [{
                         type: 'time',
                         autoSkip: false,
+                        distribution: 'series',
                         time: {
                             unit: 'minute',
-                            unitStepSize: 10
+                            unitStepSize: 20
                         },
                         displayFormats: {
                           quarter: 'h:mm a'
