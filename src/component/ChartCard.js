@@ -27,24 +27,40 @@ class ChartCard extends React.Component {
             <Card className={classes.card}>
                 <Line options={
                   {
+                    responsive: true,
                     layout: {
                       padding: {
-                          left: 0,
+                          left: 10,
                           right: 10,
                           top: 0,
-                          bottom: 10
+                          bottom: 0
                       }
                     },
                     scales:
                     {
+                      yAxes: [
+                        {
+                          gridLines: {
+                            display: false,
+                          },
+                        }
+                      ],
                       xAxes: [{
                         type: 'time',
-                        ticks: {
-                          source: 'data'
+                        autoSkip: false,
+                        time: {
+                            unit: 'minute',
+                            unitStepSize: 10
                         },
-                        display: false,
-                        bounds : 'data',
-                        distribution: 'series'
+                        displayFormats: {
+                          quarter: 'h:mm a'
+                        },
+                        scaleLabel: {
+                          display: true
+                        },
+                        gridLines: {
+                          display: false,
+                        },
                       }]
                     }
                   }
