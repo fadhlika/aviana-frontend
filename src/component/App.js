@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Sockette from 'sockette';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
@@ -80,16 +79,6 @@ class App extends Component {
 
   componentDidMount() {
     this.getDevice();
-    this.ws = new Sockette('wss://api.aviana.fadhlika.com/websocket', {
-      timeout: 5e3,
-      maxAttempts: 10,
-      onopen: e => { console.log('websocket open' + e) },
-      onclose: e => { console.log('websocket close' + e) },
-      onmessage: e => { 
-      let newdata = [JSON.parse(e.data)];
-      this.setState({ data: this.state.data.concat(newdata) })},
-      onerror: e => { console.log('websocket error ' + e)}
-    })
   }
 
   saveFormRef = (form) => {

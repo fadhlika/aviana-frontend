@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import ChartCard from './ChartCard';
+import Sockette from 'sockette';
 
 const styles = theme => ({
     root: {
@@ -11,7 +12,6 @@ const styles = theme => ({
 });
 
 class ChartGrid extends React.Component {
-
     constructor(props){
         super(props);
         this.state = {
@@ -82,6 +82,17 @@ class ChartGrid extends React.Component {
     componentWillMount() {
         const {match} = this.props;
         this.getData(match.params.id);
+        this.ws = new Sockette('wss://api.aviana.fadhlika.com/websocket', {
+            timeout: 5e3,
+            maxAttempts: 10,
+            onopen: e => { console.log('websocket open' + e) },
+            onclose: e => { console.log('websocket close' + e) },
+            onmessage: e => { 
+            let tempdata = this.state.data;
+            tempdata.unshift(JSON.parse(e.data))
+            this.setState({ data: tempdata })},
+            onerror: e => { console.log('websocket error ' + e)}
+        })
     }
 
     render(){
@@ -90,7 +101,7 @@ class ChartGrid extends React.Component {
         return (
             <Grid container className={classes.root}>
                   {arraydata.map((item, i) => {
-                      return <ChartCard key={item} data={item}/>
+                      return <ChartCard key={i} data={item}/>
                   })}
             </Grid>
         );

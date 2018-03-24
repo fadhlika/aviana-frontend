@@ -23,10 +23,24 @@ const styles = theme => ({
   },
 });
 
-function DeviceCard(props) {
-  const { classes, device, NewDevice } = props;
 
-  return (
+
+class DeviceCard extends React.Component {
+  constructor(props){
+    super(props)
+  }
+
+  download = (name) => {
+    let download = require('downloadjs');
+    fetch('https://api.aviana.fadhlika.com/download/data/' + this.props.device._id)
+    .then((resp) => resp.blob())
+    .then((blob) => download(blob, this.props.device._id));
+  }
+
+  render() {
+    const { classes, device, NewDevice } = this.props;
+
+    return (
       <Card className={classes.card}>
         {NewDevice?
         <CardContent>
@@ -51,11 +65,13 @@ function DeviceCard(props) {
         </CardActions>
         :
         <CardActions>
-          <Button size="small"  component={Link} to={"/device/" + device._id}>View Data</Button>
+          <Button size="small"  component={Link} to={"/device/" + device._id}>View</Button>
+          <Button size="small"  onClick={this.download}>Download</Button>
         </CardActions>
         }
       </Card>
-  );
+    );
+  }
 }
 
 DeviceCard.propTypes = {
