@@ -4,12 +4,10 @@ import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import { withStyles } from 'material-ui/styles';
-import IconButton from 'material-ui/IconButton';
-import ArrowBack from 'material-ui-icons/ArrowBack';
 import PropTypes from 'prop-types';
-import DataTable from './DataTable';
 import DeviceGrid from './DeviceGrid';
 import ChartGrid from './ChartGrid';
+import { Route } from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -43,7 +41,6 @@ class App extends Component {
         devices: [],
         data: [],
         newdevice: {},
-        viewData: false,
     }
   }
 
@@ -61,44 +58,6 @@ class App extends Component {
         this.setState({open: false}, this.getDevice())
       }) 
     })
-  }
-
-  handleViewData = (e) => {
-    const id = e.currentTarget.getAttribute('device-id');
-
-    this.setState({viewData: true}, this.getData(id));
-  }
-
-  handleBack = (e) => {
-    this.setState({viewData: false});
-  }
-
-  getData = (name) => {
-    fetch('https://api.aviana.fadhlika.com/data/' + name + '/100')
-    .then(response => {
-      //console.log(response);
-      return response.json()
-    })
-    .then(responsejson => {
-       if(responsejson == null) {
-        this.setState({data: [], keys: []})
-         return;
-       }
-       let keys = Object.keys(responsejson[0])
-       let fields = ["_id", "device_id", "device_name", "type", "date"]
-        for(var field in fields){
-            let index = keys.indexOf(fields[field])
-            keys.splice(index, 1)
-        }
-        keys.unshift("date");
-        for(var r in responsejson) {
-          delete responsejson[r]._id;
-          delete responsejson[r].device_id;
-          delete responsejson[r].device_name;
-          delete responsejson[r].type;
-        }
-        this.setState({data: responsejson, keys: keys});
-    });
   }
 
   getDevice = () => {
@@ -139,36 +98,20 @@ class App extends Component {
 
   render() {
     const {classes} = this.props;
-    const {
-      keys, data,
-      devices, viewData
-    } = this.state;
+    const {devices} = this.state;
     return (
     <div className={classes.root}>
       <AppBar className={classes.AppBar}>
         <Toolbar>
-          {
-            viewData?  
-            <IconButton className={classes.menuButton} color="inherit" aria-label="Menu"
-              onClick={this.handleBack}>
-              <ArrowBack />
-            </IconButton>
-            : null
-          }
           <Typography variant="title" color="inherit">
             Aviana
           </Typography>
         </Toolbar>
       </AppBar>
-      {viewData ? 
-        <main className={classes.content}>
-          <ChartGrid keys={keys} data={data} />
-        </main>
-        :
-        <main className={classes.content}>
-          <DeviceGrid tes devices={devices} handleViewData={this.handleViewData}/>
-        </main>
-        }
+      <main className={classes.content}>
+        <Route exact path="/" render={()=><DeviceGrid tes devices={devices} handleViewData={this.handleViewData}/>} />
+        <Route path="/device/:id" render={({match}) =><ChartGrid match={match} {...this.props} />} />
+      </main>
     </div>
     );
   }

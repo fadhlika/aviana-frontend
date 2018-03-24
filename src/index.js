@@ -4,6 +4,7 @@ import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Reboot from 'material-ui/Reboot';
 import blue from 'material-ui/colors/blue';
 import App from './component/App';
+import { BrowserRouter as Router } from "react-router-dom";
 import registerServiceWorker from './registerServiceWorker';
 
 const theme = createMuiTheme({
@@ -13,8 +14,10 @@ const theme = createMuiTheme({
 });
 
 ReactDOM.render(
-    <MuiThemeProvider theme={theme}>
-        <Reboot/>
-        <App />
-    </MuiThemeProvider>, document.getElementById('root'));
+    <Router>
+        <MuiThemeProvider theme={theme}>
+            <Reboot/>
+            <App />
+        </MuiThemeProvider>
+    </Router>, document.getElementById('root'));
 registerServiceWorker();

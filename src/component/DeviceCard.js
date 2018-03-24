@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardActions, CardContent } from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
+import { Link } from "react-router-dom";
 
 const styles = theme => ({
   card: {
@@ -23,7 +24,7 @@ const styles = theme => ({
 });
 
 function DeviceCard(props) {
-  const { classes, device, handleViewData, NewDevice } = props;
+  const { classes, device, NewDevice } = props;
 
   return (
       <Card className={classes.card}>
@@ -50,7 +51,7 @@ function DeviceCard(props) {
         </CardActions>
         :
         <CardActions>
-          <Button size="small" onClick={handleViewData} device-id={device._id}>View Data</Button>
+          <Button size="small"  component={Link} to={"/device/" + device._id}>View Data</Button>
         </CardActions>
         }
       </Card>

@@ -7,6 +7,8 @@ import {Line} from 'react-chartjs-2';
 const styles = theme => ({
     card: {
       margin: 10,
+      width: '100%',
+      height: '200px',
     },
     title: {
       marginBottom: 16,
@@ -28,6 +30,7 @@ class ChartCard extends React.Component {
                 <Line options={
                   {
                     responsive: true,
+                    maintainAspectRatio: false,
                     layout: {
                       padding: {
                           left: 10,
