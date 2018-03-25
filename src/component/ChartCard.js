@@ -6,9 +6,12 @@ import {Line} from 'react-chartjs-2';
 
 const styles = theme => ({
     card: {
-      margin: 10,
+      marginLeft: 10,
+      marginRight: 10,
+      marginTop: 0,
+      marginBottom: 5,
       width: '100%',
-      height: '200px',
+      height: '250px',
     },
     title: {
       marginBottom: 16,
@@ -35,8 +38,13 @@ class ChartCard extends React.Component {
                       padding: {
                           left: 10,
                           right: 10,
-                          top: 0,
+                          top: 10,
                           bottom: 0
+                      }
+                    },
+                    elements: {
+                      line: {
+                          tension: 0, // disables bezier curves
                       }
                     },
                     scales:
@@ -44,7 +52,7 @@ class ChartCard extends React.Component {
                       yAxes: [
                         {
                           gridLines: {
-                            display: false,
+                            display: true,
                           },
                         }
                       ],
@@ -63,7 +71,7 @@ class ChartCard extends React.Component {
                           display: true
                         },
                         gridLines: {
-                          display: false,
+                          display: true,
                         },
                       }]
                     }
