@@ -26,9 +26,6 @@ const styles = theme => ({
 
 
 class DeviceCard extends React.Component {
-  constructor(props){
-    super(props)
-  }
 
   download = (name) => {
     let download = require('downloadjs');

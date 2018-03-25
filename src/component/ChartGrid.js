@@ -92,7 +92,7 @@ class ChartGrid extends React.Component {
         const { match } = this.props;
         this.getData(match.params.id);
         this.ws = new Sockette('wss://api.aviana.fadhlika.com/websocket', {
-            timeout: 5e3,
+            timeout: 0,
             maxAttempts: 10,
             onopen: e => { console.log('websocket open' + e) },
             onclose: e => { console.log('websocket close' + e) },
